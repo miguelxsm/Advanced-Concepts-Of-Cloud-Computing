@@ -1,0 +1,67 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{eso-pic}
+\onehalfspacing 
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,      % enlaces con color (sin bordes)
+	linkcolor=blue,       % color para enlaces internos
+	urlcolor=blue,        % color para enlaces externos
+	citecolor=blue        % color para citas
+}
+
+\usepackage[a4paper, margin=0.8in]{geometry} % Ajusta los márgenes de la página
+
+% Definir un nuevo nivel de subsección
+\titleclass{\subsubsubsection}{straight}[\subsubsection]
+\newcounter{subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection.\arabic{subsubsubsection}}
+\titleformat{\subsubsubsection}
+{\normalfont\normalsize\itshape}{\thesubsubsubsection}{1em}{}
+\titlespacing*{\subsubsubsection}
+{0pt}{1.5ex plus .1ex minus .2ex}{0.5ex plus .1ex}
+
+\begin{document}
+	\begin{titlepage}
+		\centering
+		\vspace*{\fill}
+		{\Huge \textbf{Deployment and Management of Cloud Infrastructure using AWS} \par} 
+		\vspace{1.5cm}
+		{\Large École Polytechnique de Montréal} \\
+		[0.5cm]{\Large Advanced Concepts of Cloud Computing} \\ [0.5cm]
+		{\Large LOG8415E}
+		{\Large 2025 - 2026}  \\
+		\vspace{1.5cm}
+		{\Large \textbf{Miguel Carrasco Guirao, Pol Margarit i Fisas, Roman Alejandro Roman Canizalez} \par}
+		\vspace{2cm}
+		\includegraphics[width=0.5\textwidth]{logo_polytecnique.png}
+		\vspace*{\fill}
+		\vspace{1cm}
+		\date{}
+	\end{titlepage}
+	
+	\tableofcontents
+	\newpage
+	
+	
+	\section{Abstract}
+	\section{Introduction}
+	Amazon Web Services (AWS) is one of the world’s leading cloud computing platforms, providing on-demand access to scalable infrastructure and a broad set of managed services. As organizations increasingly move towards cloud-based solutions, understanding how to design, deploy, and manage applications in such environments has become an essential skill for engineers and IT professionals.
+	
+	This project, developed within the course Advanced Concepts of Cloud Computing at École Polytechnique de Montréal, focuses on building a practical cloud infrastructure using AWS. The objective is to implement and experiment with fundamental concepts such as elasticity, scalability, fault tolerance, and automation through real-world configurations.
+	
+	In practice, the project involved deploying EC2 instances, configuring security groups, and integrating an Application Load Balancer (ALB) to efficiently distribute traffic and ensure system resilience. Beyond the technical setup, the work also explored aspects of collaboration in cloud environments, including shared access management and team coordination.
+	
+	By combining theoretical principles with hands-on experimentation, this project not only reinforced the understanding of cloud computing concepts but also provided valuable experience in applying AWS services to create a robust and scalable infrastructure.
+	
+	\section{Assumptions and Prerequisites}
+	
+	This report assumes that the reader is already familiar with the fundamental concepts and terminology of cloud computing and distributed systems. In particular, it is expected that the reader understands concepts such as \textit{Load Balancer}, \textit{Benchmarking}, and general cloud computing terminology.
+		
+	No detailed definitions will be provided, as the focus of this report is on the practical implementation and analysis of cloud infrastructure using AWS.
+	
+\end{document}

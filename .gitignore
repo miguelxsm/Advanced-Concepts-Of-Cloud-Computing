@@ -1,0 +1,32 @@
+# Archivos auxiliares de LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+
+# Archivos temporales
+*.tmp
+*.bak
+*.backup
+
+# Salidas compiladas
+*.dvi
+*.ps
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# SSH Keys
+*.pem

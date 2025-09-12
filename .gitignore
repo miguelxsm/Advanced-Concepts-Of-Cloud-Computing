@@ -30,3 +30,7 @@ Thumbs.db
 
 # SSH Keys
 *.pem
+
+#python 
+__pycache__/
+*.pyc

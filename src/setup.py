@@ -1,4 +1,5 @@
 import boto3
+from botocore.exceptions import ClientError
 
 # Resource is a high-level API
 # Client is a low-level API
@@ -7,17 +8,17 @@ ec2_resource = boto3.resource("ec2", region_name=region)
 ec2_client = boto3.client("ec2", region_name=region)
 sg_name = "lab01-security-group"
 
-def get_n_created_lab_instances():
+def get_existing_instances():
     response = ec2_client.describe_instances()
     lab_instance_tag = {"Key": "Lab", "Value": "LAB01"}
     
-    count = 0
+    instances = {}
     for reservation in response["Reservations"]:
         for instance in reservation["Instances"]:
             if "Tags" in instance.keys() and lab_instance_tag in instance["Tags"]:
-                count += 1
+                instances[instance["InstanceId"]] = instance["State"]["Name"]
 
-    return count
+    return instances
 
 def security_group_exists(sg_name):
     exists = False
@@ -78,6 +79,22 @@ def create_security_group():
         ]
     )
 
+def start_not_running_instances(instances):
+    instances_to_start = []
+    for instance_id, instance_state in instances.items():
+        if instance_state != "running":
+            instances_to_start.append(instance_id)
+
+    if len(instances_to_start) > 0:
+        try:
+            print("Starting instances...")
+            response = ec2_client.start_instances(InstanceIds=instances_to_start, DryRun=False)
+            print(response)
+        except ClientError as e:
+            print(e)
+    elif len(instances_to_start) == 0:
+        print("Instances already running.")
+
 
 def create_instance(instance_type: str, setup_script):
     instances = ec2_resource.create_instances(
@@ -102,24 +119,25 @@ def create_instance(instance_type: str, setup_script):
     print("Instance is running at Public IP:", instance.public_ip_address)
 
 def setup():
+    # TODO: error requesting to cluster2 
     instances_config = [
         {
-            "type": "t2.micro",
+            "type": "t2.large",
             "setup_script": "user_data/cluster1.sh", 
         },
         {
-            "type": "t2.large",
+            "type": "t2.micro",
             "setup_script": "user_data/cluster2.sh", 
         }
     ]
-    n_instances_by_type = 1
+    n_instances_by_type = 4
     n_necessary_instances = 8
 
-    n_existing_instances = get_n_created_lab_instances()
-    if n_existing_instances == n_necessary_instances:
-        # TODO: just start instances
-        print("STARTING INSTANCES")
-    elif n_existing_instances == 0:
+    instances = get_existing_instances()
+    if len(instances) == n_necessary_instances:
+        # TODO: to be tested
+        start_not_running_instances(instances)
+    elif len(instances) == 0:
         # Create instances
         for instance_config in instances_config:
             setup_script = open(instance_config["setup_script"]).read()
@@ -127,7 +145,7 @@ def setup():
                 create_instance(instance_config["type"], setup_script)
         print("All instances are created and running.")
     else:
-        raise Exception(f"Unexpected number of instances found: {n_existing_instances} ... Stoping script.")
+        raise Exception(f"Unexpected number of instances found: {len(instances)} ... Stoping script.")
 
 
 if __name__ == "__main__":

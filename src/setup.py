@@ -79,7 +79,7 @@ def create_security_group():
     )
 
 
-def create_instance(instance_type: str):
+def create_instance(instance_type: str, setup_script):
     instances = ec2_resource.create_instances(
         ImageId="ami-00ca32bbc84273381",   # Amazon Linux 2 AMI (for us-east-1)
         MinCount=1,
@@ -87,6 +87,7 @@ def create_instance(instance_type: str):
         InstanceType=instance_type,
         KeyName="LOG8415_key",
         SecurityGroupIds=[sg_name],
+        UserData=setup_script,
         TagSpecifications=[
             {
                 "ResourceType": "instance",
@@ -101,8 +102,17 @@ def create_instance(instance_type: str):
     print("Instance is running at Public IP:", instance.public_ip_address)
 
 def setup():
-    instance_types = ["t2.micro", "t2.large"]
-    n_instances_by_type = 4
+    instances_config = [
+        {
+            "type": "t2.micro",
+            "setup_script": "user_data/cluster1.sh", 
+        },
+        {
+            "type": "t2.large",
+            "setup_script": "user_data/cluster2.sh", 
+        }
+    ]
+    n_instances_by_type = 1
     n_necessary_instances = 8
 
     n_existing_instances = get_n_created_lab_instances()
@@ -111,9 +121,10 @@ def setup():
         print("STARTING INSTANCES")
     elif n_existing_instances == 0:
         # Create instances
-        for instance_type in instance_types:
+        for instance_config in instances_config:
+            setup_script = open(instance_config["setup_script"]).read()
             for _ in range(n_instances_by_type):
-                create_instance(instance_type)
+                create_instance(instance_config["type"], setup_script)
         print("All instances are created and running.")
     else:
         raise Exception(f"Unexpected number of instances found: {n_existing_instances} ... Stoping script.")

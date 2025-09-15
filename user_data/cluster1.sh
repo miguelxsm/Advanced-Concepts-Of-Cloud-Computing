@@ -1,12 +1,11 @@
 #!/bin/bash
 set -e
 # ===== Base packages =====
-apt-get update -y
-apt-get install -y python3 python3-pip git
+yum update -y
+yum install -y python3 python3-pip git
 
 # ===== 2) Clone repository =====
-# Sustituye la URL por la tuya:
-cd /home/ubuntu
+cd /home/ec2-user
 if [ ! -d app ]; then
   git clone https://github.com/miguelxsm/Advanced-Concepts-Of-Cloud-Computing.git app
 fi
@@ -19,5 +18,5 @@ echo 'export CLUSTER_NAME=cluster1' > /etc/profile.d/cluster.sh # explain in the
 export CLUSTER_NAME=cluster1
 
 # ===== 5) Deploy =====
-cd /home/ubuntu/app
-nohup python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 >/home/ubuntu/app.log 2>&1 &
+cd /home/ec2-user/app/app
+nohup python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 >/home/ec2-user/app.log 2>&1 &

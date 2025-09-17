@@ -1,18 +1,31 @@
-from fastapi import FastAPI, HTTPException
-import socket
-import os
+from fastapi import FastAPI
+import uvicorn
+import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Create FastAPI app
 app = FastAPI()
 
-HOSTNAME = socket.gethostname()
-CLUSTER_NAME = os.getenv("CLUSTER_NAME", "unknown")
-
 @app.get("/")
-def health():
-    return {"status": "ok", "host": HOSTNAME, "cluster": CLUSTER_NAME}
+async def root():
+    message = "Instance has received the request"
+    logger.info(message)
+    return {"message": message}
 
-@app.get("/{cluster}")
-def route(cluster: str):
-    if cluster != CLUSTER_NAME:
-        raise HTTPException(status_code=404, detail="wrong cluster for this instance")
-    return {"message": f"Instance {HOSTNAME} in {cluster} is responding now!"}
+@app.get("/cluster1")
+async def cluster1():
+    message = "Request received by cluster1 instance"
+    logger.info(message)
+    return {"status": "ok", "host": "cluster1", "message": message}
+
+@app.get("/cluster2")
+async def cluster2():
+    message = "Request received by cluster2 instance"
+    logger.info(message)
+    return {"status": "ok", "host": "cluster2", "message": message}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

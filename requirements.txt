@@ -1,2 +1,5 @@
 fastapi
 uvicorn[standard]
+boto3
+requests
+aiohttp

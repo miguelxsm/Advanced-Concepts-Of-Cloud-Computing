@@ -1,40 +1,49 @@
-#!/usr/bin/env python3
-"""
-Main orchestrator for the lab assignment.
-Steps:
-1. Create security group and EC2 instances (setup.py).
-2. Create Application Load Balancer and Target Groups (create_alb.py).
-3. Run benchmark against ALB (benchmark.py).
-4. Fetch CloudWatch metrics and save to CSV (cloudwatch.py).
-"""
-
-import subprocess
+import asyncio
 import sys
 import time
-import boto3
-import socket
+from setup import create_security_group, setup
+from create_alb import main as create_alb
+from benchmark import main as run_benchmark
+from cloudwatch import main as fetch_metrics
+from visualize import plot_metrics_from_data
 
-region = "us-east-1"
-ec2_client = boto3.client("ec2", region_name=region)
+async def main():
+    """
+    Pipeline principal que ejecuta todos los pasos de la infraestructura
+    de forma secuencial, importando las funciones necesarias.
+    """
+    try:
+        print("\n--- Creating Security Group and Instances ---")
+        create_security_group()
+        setup()
+        print("Security Group and Instances created.")
 
-LAB_TAG = {"Key": "Lab", "Value": "LAB01"}
+        print("\n--- Creating Application Load Balancer ---")
+        create_alb()
+        print("Application Load Balancer created.")
 
-# ---------------------- MAIN ----------------------
+        print("\n--- Running Benchmark ---")
+        time.sleep(180)
+        await run_benchmark()
+        print("Benchmark completed.")
 
-def main():
-    # Step 1: Create security group and instances
-    run_step("Creating security group and instances", ["python3", "src/setup.py"])
+        print("\n--- Waiting for CloudWatch metrics to populate (2 minutes) ---")
+        time.sleep(120)
+        print("Wait finished.")
+        
+        print("\n--- Getting CloudWatch Metrics ---")
+        metrics_data = fetch_metrics()
+        print("Metrics fetched.")
 
-    # Step 2: Create ALB and Target Groups
-    run_step("Creating Application Load Balancer", ["python3", "src/create_alb.py"])
+        print("\n--- Visualizing Metrics ---")
+        plot_metrics_from_data(metrics_data)
+        print("Visualization complete. Plots saved in 'plots/' directory.")
 
-    # Step 3: Run benchmark
-    run_step("Running benchmark", ["python3", "src/benchmark.py"])
-
-    # Step 4: Fetch CloudWatch metrics
-    #run_step("Fetching CloudWatch metrics", ["python3", "src/cloudwatch.py"])
-
-    print("\n✅ Pipeline completed successfully!")
+        print("\nPipeline completed successfully!")
+    except Exception as e:
+        print(f"\nPipeline failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+   
+    asyncio.run(main())
